@@ -14,8 +14,9 @@ export default function Register() {
     e.preventDefault();
     setError(null);
     
-    const email = e.target[0].value;
-    const username = e.target[0].value; // Dùng email làm username luôn hoặc thêm trường riêng
+    const inputValue = e.target[0].value;
+    const username = inputValue;
+    const email = inputValue.includes('@') ? inputValue : '';
     const password = e.target[1].value;
     const confirmPassword = e.target[2].value;
 
@@ -31,7 +32,13 @@ export default function Register() {
       navigate('/login');
     } catch (err) {
       console.error(err);
-      setError("Registration failed. Please try again.");
+      const data = err.response?.data;
+      if (data) {
+        const messages = Object.values(data).flat().join(' ');
+        setError(messages || "Registration failed. Please try again.");
+      } else {
+        setError("Cannot connect to server. Please try again.");
+      }
     } finally {
       setLoading(false);
     }

@@ -1,78 +1,118 @@
-import React, { useState, useRef } from 'react';
-import { Mic, Square, RefreshCw, ChevronRight, MessageSquare } from 'lucide-react';
-import Button from '../../components/ui/Button';
+import React, { useState, useRef, useEffect } from 'react';
+import { Mic, Square, ChevronRight, MessageSquare } from 'lucide-react';
+import Button from '../../components/UI/Button';
+import { speakingAPI } from '../../services/api';
 
 export default function SpeakingAI() {
   const [status, setStatus] = useState('idle'); // idle | recording | analyzing | result
   const [audioUrl, setAudioUrl] = useState(null);
+  const [audioBlobRef, setAudioBlobRef] = useState(null);
   const [result, setResult] = useState(null);
-  
+  const [topics, setTopics] = useState([]);
+  const [currentTopicIdx, setCurrentTopicIdx] = useState(0);
+  const [error, setError] = useState(null);
+
   const mediaRecorderRef = useRef(null);
   const audioChunks = useRef([]);
 
+  useEffect(() => {
+    speakingAPI.getTopics()
+      .then(res => {
+        const data = Array.isArray(res.data) ? res.data : (res.data.results || []);
+        setTopics(data);
+      })
+      .catch(() => {
+        // Fallback topic if API fails
+        setTopics([{
+          id: null,
+          title: "Education & Technology",
+          category: "IELTS Speaking Part 3",
+          prompt_question: "How has technology changed the way we learn?",
+        }]);
+      });
+  }, []);
+
+  const currentTopic = topics[currentTopicIdx] || {
+    title: "General Speaking",
+    category: "Practice",
+    prompt_question: "Tell me about yourself.",
+  };
+
   const startRecording = async () => {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    mediaRecorderRef.current = new MediaRecorder(stream);
-    
-    mediaRecorderRef.current.ondataavailable = (event) => {
-      audioChunks.current.push(event.data);
-    };
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorderRef.current = new MediaRecorder(stream);
 
-    mediaRecorderRef.current.onstop = () => {
-      const audioBlob = new Blob(audioChunks.current, { type: 'audio/wav' });
-      const url = URL.createObjectURL(audioBlob);
-      setAudioUrl(url);
-      audioChunks.current = [];
-      
-      // Giả lập gửi lên server
-      handleAnalyze();
-    };
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        audioChunks.current.push(event.data);
+      };
 
-    mediaRecorderRef.current.start();
-    setStatus('recording');
+      mediaRecorderRef.current.onstop = async () => {
+        const audioBlob = new Blob(audioChunks.current, { type: 'audio/webm' });
+        const url = URL.createObjectURL(audioBlob);
+        setAudioUrl(url);
+        setAudioBlobRef(audioBlob);
+        audioChunks.current = [];
+
+        // Send to backend
+        setStatus('analyzing');
+        setError(null);
+        try {
+          const response = await speakingAPI.uploadAudio(audioBlob, currentTopic.id);
+          setResult(response.data);
+          setStatus('result');
+        } catch (err) {
+          console.error("Speaking analysis error:", err);
+          setError("Could not analyze speech. Please try again.");
+          setStatus('idle');
+        }
+      };
+
+      mediaRecorderRef.current.start();
+      setStatus('recording');
+    } catch (err) {
+      setError("Microphone access denied. Please allow microphone permission.");
+    }
   };
 
   const stopRecording = () => {
-    mediaRecorderRef.current.stop();
-    setStatus('analyzing');
-  };
-
-  const handleAnalyze = () => {
-    // Gọi API Django ở đây: await api.speaking.uploadAudio(...)
-    
-    setTimeout(() => {
-        setResult({
-            score: 7.5,
-            transcript: "I believe technology plays a crucial role in modern education because it allows students to access information instantly.",
-            feedback: "Great sentence structure! Your pronunciation of 'crucial' was perfect. Try to pause slightly after 'education' for better flow.",
-            fluency: 8,
-            pronunciation: 7,
-            grammar: 8
-        });
-        setStatus('result');
-    }, 2500); // Giả lập AI chạy mất 2.5s
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+    }
   };
 
   const reset = () => {
-      setAudioUrl(null);
-      setResult(null);
-      setStatus('idle');
+    setAudioUrl(null);
+    setAudioBlobRef(null);
+    setResult(null);
+    setError(null);
+    setStatus('idle');
+  };
+
+  const nextTopic = () => {
+    setCurrentTopicIdx(prev => (prev + 1) % topics.length);
+    reset();
   };
 
   return (
     <div className="max-w-4xl mx-auto">
        {/* Topic Header */}
        <div className="text-center mb-10">
-           <span className="bg-purple-100 text-purple-700 font-bold px-3 py-1 rounded-full text-xs uppercase tracking-wide">IELTS Speaking Part 3</span>
-           <h2 className="text-3xl font-bold mt-4 text-slate-900">Topic: Education & Technology</h2>
-           <p className="text-slate-500 mt-2 text-lg">"How has technology changed the way we learn?"</p>
+           <span className="bg-purple-100 text-purple-700 font-bold px-3 py-1 rounded-full text-xs uppercase tracking-wide">{currentTopic.category}</span>
+           <h2 className="text-3xl font-bold mt-4 text-slate-900">Topic: {currentTopic.title}</h2>
+           <p className="text-slate-500 mt-2 text-lg">"{currentTopic.prompt_question}"</p>
        </div>
+
+       {error && (
+         <div className="mb-4 text-center text-red-500 text-sm bg-red-50 p-3 rounded-lg">{error}</div>
+       )}
 
        {/* Main Interaction Area */}
        <div className="bg-white rounded-3xl shadow-soft border border-border p-12 min-h-[400px] flex flex-col items-center justify-center relative overflow-hidden transition-all duration-500">
-           
+
            {/* Background Grid Pattern */}
-           <div className="absolute inset-0 opacity-[0.03]" 
+           <div className="absolute inset-0 opacity-[0.03]"
                 style={{backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '20px 20px'}}>
            </div>
 
@@ -93,7 +133,7 @@ export default function SpeakingAI() {
                            <Square size={32} className="text-white fill-current" />
                        </button>
                    </div>
-                   <p className="mt-6 text-red-500 font-bold animate-pulse">Recording... (00:05)</p>
+                   <p className="mt-6 text-red-500 font-bold animate-pulse">Recording...</p>
                </div>
            )}
 
@@ -134,7 +174,7 @@ export default function SpeakingAI() {
                            <div className="flex justify-end gap-3 pt-2">
                                <audio src={audioUrl} controls className="h-10 w-full max-w-[200px]" />
                                <Button variant="secondary" onClick={reset}>Try Again</Button>
-                               <Button>Next Topic <ChevronRight size={16}/></Button>
+                               <Button onClick={nextTopic}>Next Topic <ChevronRight size={16}/></Button>
                            </div>
                        </div>
                    </div>

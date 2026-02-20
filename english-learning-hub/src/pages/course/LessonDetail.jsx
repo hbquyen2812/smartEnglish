@@ -1,24 +1,57 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Button from '../../components/UI/Button';
+import { lessonAPI } from '../../services/api';
 
-export default function LessonDetail({ type }) { 
+export default function LessonDetail({ type }) {
   const { id } = useParams();
+  const [lesson, setLesson] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [selectedAnswers, setSelectedAnswers] = useState({});
+  const [submitted, setSubmitted] = useState(false);
+  const [submitResult, setSubmitResult] = useState(null);
 
-  const handleSelect = (qId, optionIdx) => {
-    setSelectedAnswers(prev => ({ ...prev, [qId]: optionIdx }));
+  useEffect(() => {
+    const fetchLesson = async () => {
+      try {
+        const response = await lessonAPI.getDetail(id);
+        setLesson(response.data);
+      } catch (err) {
+        console.error("Failed to fetch lesson:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchLesson();
+  }, [id]);
+
+  const handleSelect = (qId, optionId) => {
+    if (!submitted) {
+      setSelectedAnswers(prev => ({ ...prev, [qId]: optionId }));
+    }
   };
+
+  const handleSubmit = async () => {
+    try {
+      const response = await lessonAPI.submitAnswers(id, selectedAnswers);
+      setSubmitResult(response.data);
+      setSubmitted(true);
+    } catch (err) {
+      console.error("Failed to submit:", err);
+    }
+  };
+
+  if (loading) return <div className="text-center py-10">Loading lesson...</div>;
+  if (!lesson) return <div className="text-center py-10 text-red-500">Lesson not found.</div>;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-[calc(100vh-140px)]">
-      {}
       <div className="lg:col-span-2 flex flex-col h-full bg-white rounded-2xl border border-border overflow-hidden">
          <div className="p-6 border-b border-border">
-             <h2 className="text-xl font-bold">The Future of Remote Work</h2>
+             <h2 className="text-xl font-bold">{lesson.title}</h2>
              <p className="text-sm text-slate-500 mt-1">Lesson {id} • {type === 'listening' ? 'Listen carefully' : 'Read the passage'}</p>
          </div>
-         
+
          <div className="flex-1 p-8 overflow-y-auto bg-slate-50/50">
              {type === 'listening' ? (
                  <div className="flex flex-col items-center justify-center h-full">
@@ -27,50 +60,74 @@ export default function LessonDetail({ type }) {
                              <span className="font-bold">AUDIO</span>
                          </div>
                      </div>
-                     <audio controls className="w-full max-w-md">
-                         <source src="#" />
-                     </audio>
+                     {lesson.audio_file ? (
+                       <audio controls className="w-full max-w-md">
+                           <source src={lesson.audio_file} />
+                       </audio>
+                     ) : (
+                       <p className="text-slate-400">Audio file not available yet.</p>
+                     )}
                  </div>
              ) : (
                  <article className="prose prose-slate max-w-none">
-                     <p>The COVID-19 pandemic has fundamentally changed how we think about work...</p>
-                     <p>Companies have discovered numerous benefits to remote work arrangements. Reduced overhead costs...</p>
-                     <p>However, challenges remain, including maintaining company culture and ensuring effective communication.</p>
+                     {lesson.reading_text.split('\n\n').map((paragraph, i) => (
+                       <p key={i}>{paragraph}</p>
+                     ))}
                  </article>
              )}
          </div>
       </div>
 
-      {}
       <div className="bg-white rounded-2xl border border-border flex flex-col h-full overflow-hidden">
          <div className="p-4 bg-slate-50 border-b border-border">
              <h3 className="font-bold text-slate-700">Comprehension Check</h3>
+             {submitResult && (
+               <p className="text-sm mt-1 font-medium text-primary">
+                 Score: {submitResult.correct}/{submitResult.total} ({Math.round(submitResult.score)}%)
+               </p>
+             )}
          </div>
-         
+
          <div className="flex-1 overflow-y-auto p-4 space-y-6">
-             {[1, 2, 3].map(q => (
-                 <div key={q}>
-                     <p className="font-medium text-sm mb-3">{q}. What is the main idea of the passage?</p>
+             {lesson.questions && lesson.questions.map((q, qi) => (
+                 <div key={q.id}>
+                     <p className="font-medium text-sm mb-3">{qi + 1}. {q.text}</p>
                      <div className="space-y-2">
-                         {['Remote work is bad', 'Remote work saves money', 'It is complex'].map((opt, idx) => (
-                             <div 
-                                key={idx} 
-                                onClick={() => handleSelect(q, idx)}
-                                className={`p-3 rounded-lg border text-sm cursor-pointer transition-all
-                                ${selectedAnswers[q] === idx 
-                                    ? 'bg-primary text-white border-primary shadow-md' 
-                                    : 'bg-white border-slate-200 hover:border-slate-400'}`}
-                             >
-                                 {opt}
-                             </div>
-                         ))}
+                         {q.options.map((opt) => {
+                             const isSelected = selectedAnswers[q.id] === opt.id;
+                             let extraClass = '';
+                             if (submitted && submitResult) {
+                               const qResult = submitResult.results.find(r => r.question_id === q.id);
+                               if (qResult) {
+                                 if (opt.id === qResult.correct_answer) extraClass = 'bg-green-500 text-white border-green-500';
+                                 else if (isSelected && !qResult.correct) extraClass = 'bg-red-100 border-red-300 text-red-700';
+                               }
+                             }
+                             return (
+                               <div
+                                  key={opt.id}
+                                  onClick={() => handleSelect(q.id, opt.id)}
+                                  className={`p-3 rounded-lg border text-sm cursor-pointer transition-all
+                                  ${extraClass || (isSelected
+                                      ? 'bg-primary text-white border-primary shadow-md'
+                                      : 'bg-white border-slate-200 hover:border-slate-400')}`}
+                               >
+                                   {opt.text}
+                               </div>
+                             );
+                         })}
                      </div>
                  </div>
              ))}
+             {(!lesson.questions || lesson.questions.length === 0) && (
+               <p className="text-slate-400 text-center">No questions for this lesson yet.</p>
+             )}
          </div>
 
          <div className="p-4 border-t border-border">
-             <Button className="w-full">Submit Answers</Button>
+             <Button className="w-full" onClick={handleSubmit} disabled={submitted}>
+               {submitted ? `Score: ${Math.round(submitResult?.score || 0)}%` : 'Submit Answers'}
+             </Button>
          </div>
       </div>
     </div>

@@ -1,0 +1,32 @@
+# Python / Django
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+db.sqlite3
+*.sqlite3
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Environment variables (chứa mật khẩu, API key)
+.env
+
+# Media uploads
+backend/media/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+dist/
