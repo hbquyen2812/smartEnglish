@@ -59,7 +59,7 @@ export default function DashboardLayout() {
       <aside className="w-72 bg-surface border-r border-border fixed h-full z-20 hidden md:flex flex-col">
         <div className="p-6 flex items-center gap-3">
           <div className="bg-primary text-white p-2 rounded-lg"><BookOpen size={20} /></div>
-          <span className="font-bold text-lg tracking-tight">EnglishHub</span>
+          <span className="font-bold text-lg tracking-tight">Smart English</span>
         </div>
 
         <div className="px-6 mb-6">

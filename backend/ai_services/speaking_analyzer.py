@@ -40,11 +40,12 @@ class SpeakingAnalyzer:
                     except OSError:
                         pass
 
-    def analyze(self, audio_file, topic=None):
+    def analyze(self, audio_file, topic=None, question_text=None):
         """Full pipeline: transcribe audio then send to Gemini for assessment."""
         transcript = self.transcribe_audio(audio_file)
 
-        topic_question = topic.prompt_question if topic else None
+        # Use question_text if provided, otherwise fall back to topic title
+        topic_question = question_text or (topic.title if topic else None)
         assessment = self.gemini.assess_speaking(transcript, topic_question)
 
         return {
@@ -53,5 +54,10 @@ class SpeakingAnalyzer:
             'fluency': assessment.get('fluency', 0),
             'pronunciation': assessment.get('pronunciation', 0),
             'grammar': assessment.get('grammar', 0),
+            'lexical_resource': assessment.get('lexical_resource', 0),
             'feedback': assessment.get('feedback', ''),
+            'fluency_feedback': assessment.get('fluency_feedback', ''),
+            'pronunciation_feedback': assessment.get('pronunciation_feedback', ''),
+            'grammar_feedback': assessment.get('grammar_feedback', ''),
+            'lexical_feedback': assessment.get('lexical_feedback', ''),
         }

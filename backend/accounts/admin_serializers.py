@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import UserProfile, UserProgress
 from lessons.models import Lesson, Question, AnswerOption
-from speaking.models import SpeakingTopic
+from speaking.models import SpeakingTopic, SpeakingQuestion
 
 
 # ─── User Management ───
@@ -88,7 +88,38 @@ class AdminLessonSerializer(serializers.ModelSerializer):
 
 # ─── Speaking Topic Management ───
 
+class AdminSpeakingQuestionSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
+
+    class Meta:
+        model = SpeakingQuestion
+        fields = ['id', 'question_text', 'order']
+
+
 class AdminSpeakingTopicSerializer(serializers.ModelSerializer):
+    questions = AdminSpeakingQuestionSerializer(many=True, required=False)
+    questions_count = serializers.IntegerField(source='questions.count', read_only=True)
+
     class Meta:
         model = SpeakingTopic
-        fields = ['id', 'title', 'category', 'prompt_question', 'order']
+        fields = ['id', 'title', 'part', 'description', 'order', 'questions', 'questions_count']
+
+    def create(self, validated_data):
+        questions_data = validated_data.pop('questions', [])
+        topic = SpeakingTopic.objects.create(**validated_data)
+        for q in questions_data:
+            q.pop('id', None)
+            SpeakingQuestion.objects.create(topic=topic, **q)
+        return topic
+
+    def update(self, instance, validated_data):
+        questions_data = validated_data.pop('questions', None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        if questions_data is not None:
+            instance.questions.all().delete()
+            for q in questions_data:
+                q.pop('id', None)
+                SpeakingQuestion.objects.create(topic=instance, **q)
+        return instance

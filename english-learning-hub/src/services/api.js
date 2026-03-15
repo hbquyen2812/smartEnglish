@@ -73,11 +73,13 @@ export const lessonAPI = {
 
 // API Speaking
 export const speakingAPI = {
-  getTopics: () => api.get('/speaking/topics/'),
-  uploadAudio: (audioBlob, topicId) => {
+  getTopics: (part) => api.get('/speaking/topics/', { params: part ? { part } : {} }),
+  getTopicDetail: (id) => api.get(`/speaking/topics/${id}/`),
+  uploadAudio: (audioBlob, topicId, questionId) => {
     const formData = new FormData();
     formData.append('audio', audioBlob, 'recording.wav');
     if (topicId) formData.append('topic_id', topicId);
+    if (questionId) formData.append('question_id', questionId);
     return api.post('/speaking/analyze/', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
