@@ -14,7 +14,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 font-bold text-xl tracking-tight">
             <BookOpen className="h-6 w-6" />
-            <span>English Learning Hub</span>
+            <span>Smart English</span>
           </div>
           <div className="flex items-center gap-4">
             <select value={lang} onChange={(e) => switchLang(e.target.value)}
@@ -60,7 +60,7 @@ export default function LandingPage() {
       </section>
 
       <footer className="py-12 text-center text-slate-400 text-sm">
-        <p>&copy; 2026 English Learning Hub. All rights reserved.</p>
+        <p>&copy; 2026 Smart English. All rights reserved.</p>
       </footer>
     </div>
   );
