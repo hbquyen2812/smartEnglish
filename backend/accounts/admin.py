@@ -4,8 +4,9 @@ from .models import UserProfile, UserProgress
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ['user', 'level', 'streak', 'daily_goal']
-    list_filter = ['level']
+    list_display = ['user', 'role', 'level', 'streak', 'daily_goal']
+    list_filter = ['role', 'level']
+    list_editable = ['role']
 
 
 @admin.register(UserProgress)

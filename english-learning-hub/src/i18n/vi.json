@@ -1,0 +1,135 @@
+{
+  "nav": {
+    "dashboard": "Trang chủ",
+    "reading": "Đọc hiểu",
+    "listening": "Nghe hiểu",
+    "speaking": "Luyện nói AI",
+    "grammar": "Ngữ pháp",
+    "writing": "Viết luận",
+    "summarizer": "Tóm tắt",
+    "progress": "Tiến độ",
+    "settings": "Cài đặt",
+    "adminPanel": "Quản trị",
+    "signOut": "Đăng xuất",
+    "learning": "Học tập",
+    "account": "Tài khoản"
+  },
+  "dashboard": {
+    "welcome": "Chào mừng trở lại",
+    "subtitle": "Hãy học điều gì mới hôm nay.",
+    "dailyGoal": "Mục tiêu hàng ngày",
+    "dayStreak": "ngày liên tiếp",
+    "goal": "Mục tiêu",
+    "streak": "Chuỗi ngày",
+    "recommended": "Đề xuất cho bạn",
+    "startLesson": "Bắt đầu",
+    "viewAll": "Xem tất cả",
+    "practiceAI": "Luyện nói với AI",
+    "practiceDesc": "Cải thiện phát âm và khả năng nói trôi chảy với AI."
+  },
+  "auth": {
+    "login": "Đăng nhập",
+    "register": "Tạo tài khoản",
+    "username": "Tên đăng nhập",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "noAccount": "Chưa có tài khoản?",
+    "hasAccount": "Đã có tài khoản?",
+    "signUp": "Đăng ký",
+    "signIn": "Đăng nhập"
+  },
+  "course": {
+    "allLevels": "Tất cả",
+    "beginner": "Cơ bản",
+    "intermediate": "Trung cấp",
+    "advanced": "Nâng cao",
+    "questions": "câu hỏi",
+    "readingCourses": "Khóa học Đọc hiểu",
+    "listeningCourses": "Khóa học Nghe hiểu"
+  },
+  "lesson": {
+    "comprehensionCheck": "Kiểm tra hiểu bài",
+    "submitAnswers": "Nộp bài",
+    "yourScore": "Điểm của bạn",
+    "correct": "đúng"
+  },
+  "speaking": {
+    "title": "Luyện nói",
+    "startRecording": "Nhấn để bắt đầu ghi âm",
+    "recording": "Đang ghi âm...",
+    "stopRecording": "Nhấn để dừng",
+    "analyzing": "Đang phân tích bài nói...",
+    "overallScore": "Điểm tổng",
+    "fluency": "Lưu loát",
+    "pronunciation": "Phát âm",
+    "grammarScore": "Ngữ pháp",
+    "transcript": "Bản ghi lời nói",
+    "feedback": "Nhận xét từ AI",
+    "tryAgain": "Thử lại",
+    "nextTopic": "Chủ đề tiếp"
+  },
+  "grammar": {
+    "title": "Kiểm tra ngữ pháp",
+    "placeholder": "Nhập hoặc dán văn bản tiếng Anh vào đây...",
+    "checkButton": "Kiểm tra ngữ pháp",
+    "reset": "Đặt lại",
+    "noErrors": "Không tìm thấy lỗi ngữ pháp!",
+    "errorsFound": "lỗi tìm thấy",
+    "correctedText": "Văn bản đã sửa",
+    "errorDetails": "Chi tiết lỗi"
+  },
+  "writing": {
+    "title": "Chấm điểm bài viết",
+    "topicLabel": "Chủ đề (tùy chọn)",
+    "essayPlaceholder": "Viết bài luận của bạn ở đây...",
+    "assessButton": "Chấm điểm",
+    "reset": "Đặt lại",
+    "overallBand": "Điểm tổng",
+    "taskAchievement": "Hoàn thành yêu cầu",
+    "coherence": "Mạch lạc & Liên kết",
+    "lexical": "Từ vựng",
+    "grammarAccuracy": "Chính xác ngữ pháp",
+    "aiFeedback": "Nhận xét từ AI",
+    "corrections": "Gợi ý sửa lỗi",
+    "words": "từ"
+  },
+  "summarize": {
+    "title": "Tóm tắt bài đọc",
+    "placeholder": "Dán bài báo hoặc đoạn văn tiếng Anh vào đây...",
+    "summarizeButton": "Tóm tắt & Trích xuất từ vựng",
+    "reset": "Đặt lại",
+    "summary": "Tóm tắt",
+    "vocabulary": "Từ vựng quan trọng",
+    "words": "từ"
+  },
+  "progress": {
+    "title": "Tiến độ học tập",
+    "lessonsCompleted": "Bài đã hoàn thành",
+    "averageScore": "Điểm trung bình",
+    "currentLevel": "Cấp độ hiện tại",
+    "dayStreak": "Chuỗi ngày",
+    "completedLessons": "Bài học đã hoàn thành",
+    "noLessons": "Chưa hoàn thành bài học nào. Bắt đầu học ngay!",
+    "excellent": "Xuất sắc",
+    "good": "Tốt",
+    "needsWork": "Cần cải thiện"
+  },
+  "landing": {
+    "heroTitle": "Chinh phục tiếng Anh với AI",
+    "heroSubtitle": "Trải nghiệm học tập cá nhân hóa được hỗ trợ bởi trí tuệ nhân tạo",
+    "getStarted": "Bắt đầu ngay",
+    "signIn": "Đăng nhập"
+  },
+  "common": {
+    "loading": "Đang tải...",
+    "error": "Đã xảy ra lỗi",
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "delete": "Xóa",
+    "edit": "Sửa",
+    "create": "Tạo mới",
+    "search": "Tìm kiếm",
+    "language": "Ngôn ngữ"
+  }
+}

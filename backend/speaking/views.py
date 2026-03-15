@@ -43,7 +43,12 @@ class SpeakingAnalyzeView(APIView):
             fluency=result['fluency'],
             pronunciation=result['pronunciation'],
             grammar=result['grammar'],
+            lexical_resource=result.get('lexical_resource', 0),
             feedback=result['feedback'],
+            fluency_feedback=result.get('fluency_feedback', ''),
+            pronunciation_feedback=result.get('pronunciation_feedback', ''),
+            grammar_feedback=result.get('grammar_feedback', ''),
+            lexical_feedback=result.get('lexical_feedback', ''),
         )
 
         return Response({
@@ -53,4 +58,9 @@ class SpeakingAnalyzeView(APIView):
             'fluency': result['fluency'],
             'pronunciation': result['pronunciation'],
             'grammar': result['grammar'],
+            'lexical_resource': result.get('lexical_resource', 0),
+            'fluency_feedback': result.get('fluency_feedback', ''),
+            'pronunciation_feedback': result.get('pronunciation_feedback', ''),
+            'grammar_feedback': result.get('grammar_feedback', ''),
+            'lexical_feedback': result.get('lexical_feedback', ''),
         })

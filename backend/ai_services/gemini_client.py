@@ -20,7 +20,7 @@ class GeminiClient:
         if not api_key or api_key == 'your_gemini_api_key_here':
             raise ValueError("GEMINI_API_KEY is not configured. Get one from https://aistudio.google.com/apikey")
         self.client = genai.Client(api_key=api_key)
-        self.model = 'gemini-2.5-flash'
+        self.model = 'gemini-2.5-flash-lite'
 
     def _generate(self, prompt):
         """Call Gemini API and return the response text."""
@@ -31,7 +31,7 @@ class GeminiClient:
         return response.text
 
     def assess_speaking(self, transcript, topic_question=None):
-        prompt = f"""You are an IELTS speaking examiner. Evaluate the following spoken response.
+        prompt = f"""You are an IELTS speaking examiner. Evaluate the following spoken response based on the 4 official IELTS Speaking criteria.
 
 Topic question: {topic_question or 'General speaking'}
 Student's response transcript: "{transcript}"
@@ -42,7 +42,12 @@ Provide your assessment as a JSON object with EXACTLY these fields:
     "fluency": <int 1-9>,
     "pronunciation": <int 1-9>,
     "grammar": <int 1-9>,
-    "feedback": "<2-3 sentences of constructive feedback>"
+    "lexical_resource": <int 1-9>,
+    "fluency_feedback": "<1-2 sentences about fluency & coherence>",
+    "pronunciation_feedback": "<1-2 sentences about pronunciation>",
+    "grammar_feedback": "<1-2 sentences about grammatical range & accuracy>",
+    "lexical_feedback": "<1-2 sentences about lexical resource / vocabulary usage>",
+    "feedback": "<2-3 sentences of overall constructive feedback>"
 }}
 
 Return ONLY the JSON, no other text."""
@@ -51,7 +56,8 @@ Return ONLY the JSON, no other text."""
             return _parse_json_response(self._generate(prompt))
         except Exception:
             return {
-                'score': 5.0, 'fluency': 5, 'pronunciation': 5, 'grammar': 5,
+                'score': 5.0, 'fluency': 5, 'pronunciation': 5, 'grammar': 5, 'lexical_resource': 5,
+                'fluency_feedback': '', 'pronunciation_feedback': '', 'grammar_feedback': '', 'lexical_feedback': '',
                 'feedback': 'AI assessment temporarily unavailable. Please try again.',
             }
 
@@ -117,27 +123,78 @@ Return ONLY the JSON."""
                 'corrections': [],
             }
 
-    def grammar_correction(self, text):
-        prompt = f"""Check this English text for grammar errors:
+    def explain_answers(self, passage, questions_answers):
+        """Generate explanations for quiz answers with evidence from the passage."""
+        qa_text = '\n'.join([
+            f'{i}. Q: {qa["question"]} -> Correct: {qa["correct_answer"]}'
+            for i, qa in enumerate(questions_answers)
+        ])
 
-Text: "{text}"
+        prompt = f"""You are an English teacher. For each question below, explain WHY the correct answer is right.
+Quote the relevant evidence/sentence from the passage to support your explanation.
 
-Return JSON:
+Passage: "{passage}"
+
+Questions and correct answers:
+{qa_text}
+
+Return a JSON object where keys are the question index (as string) and values are explanation strings.
+Each explanation should:
+1. State why the answer is correct
+2. Quote the relevant part from the passage as evidence (use quotation marks)
+
+Example format:
 {{
-    "corrected_text": "...",
-    "errors": [
-        {{"original": "...", "correction": "...", "rule": "..."}}
-    ],
-    "is_correct": true/false
+    "0": "The answer is correct because the passage states: \\"quote from passage\\". This shows that...",
+    "1": "According to the passage: \\"relevant quote\\". Therefore..."
 }}
 
-Return ONLY the JSON."""
+Return ONLY the JSON, no other text."""
 
         try:
             return _parse_json_response(self._generate(prompt))
         except Exception:
+            return {}
+
+    def grammar_correction(self, text):
+        prompt = f"""You are a strict English grammar teacher. Carefully check EVERY word in this text for ALL types of errors including:
+- Subject-verb agreement (e.g. "i goes" should be "I go")
+- Capitalization (e.g. "i" should be "I")
+- Spelling mistakes
+- Wrong word usage (e.g. "everyday" vs "every day")
+- Tense errors
+- Article errors
+- Punctuation errors
+
+Text: "{text}"
+
+Be very thorough. Even small errors like lowercase "i" or wrong verb forms MUST be caught.
+
+Return JSON:
+{{
+    "corrected_text": "<the fully corrected text>",
+    "errors": [
+        {{"original": "<exact wrong word/phrase>", "correction": "<correct version>", "rule": "<brief grammar rule explanation>"}}
+    ],
+    "is_correct": <true ONLY if there are absolutely zero errors, false otherwise>
+}}
+
+Return ONLY the JSON, no other text."""
+
+        try:
+            return _parse_json_response(self._generate(prompt))
+        except Exception as e:
+            error_msg = str(e)
+            if '429' in error_msg or 'RESOURCE_EXHAUSTED' in error_msg:
+                return {
+                    'corrected_text': text,
+                    'errors': [],
+                    'is_correct': False,
+                    'error': 'AI rate limit reached. Please try again in a minute.',
+                }
             return {
                 'corrected_text': text,
                 'errors': [],
-                'is_correct': True,
+                'is_correct': False,
+                'error': 'AI service temporarily unavailable. Please try again.',
             }

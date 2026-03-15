@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Send, RotateCcw, FileText } from 'lucide-react';
 import Button from '../../components/UI/Button';
 import { aiAPI } from '../../services/api';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const ScoreBar = ({ label, score, max = 9 }) => (
   <div className="flex items-center gap-3">
@@ -17,6 +18,7 @@ const ScoreBar = ({ label, score, max = 9 }) => (
 );
 
 export default function WritingAssess() {
+  const { t } = useLanguage();
   const [topic, setTopic] = useState('');
   const [essay, setEssay] = useState('');
   const [result, setResult] = useState(null);
@@ -49,7 +51,7 @@ export default function WritingAssess() {
   return (
     <div className="max-w-5xl mx-auto">
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-slate-900 mb-2">IELTS Writing Assessment</h2>
+        <h2 className="text-2xl font-bold text-slate-900 mb-2">{t('writing.title')}</h2>
         <p className="text-slate-500">Submit your essay and AI will score it based on 4 IELTS Writing criteria.</p>
       </div>
 
@@ -57,7 +59,7 @@ export default function WritingAssess() {
         {/* Input - Left side */}
         <div className="lg:col-span-3 bg-white rounded-2xl border border-border p-6">
           <div className="mb-4">
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Essay Topic (Optional)</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">{t('writing.topicLabel')}</label>
             <input
               className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-slate-700 placeholder:text-slate-400"
               placeholder="e.g. Some people think that technology is making our lives easier..."
@@ -68,11 +70,11 @@ export default function WritingAssess() {
           <div className="mb-4">
             <div className="flex justify-between items-center mb-1.5">
               <label className="text-sm font-medium text-slate-700">Your Essay</label>
-              <span className="text-xs text-slate-400">{essay.split(/\s+/).filter(Boolean).length} words</span>
+              <span className="text-xs text-slate-400">{essay.split(/\s+/).filter(Boolean).length} {t('writing.words')}</span>
             </div>
             <textarea
               className="w-full h-72 p-4 border border-slate-200 rounded-xl resize-none focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-slate-700 placeholder:text-slate-400 leading-relaxed"
-              placeholder="Write your essay here (minimum 150 words recommended)..."
+              placeholder={t('writing.essayPlaceholder')}
               value={essay}
               onChange={(e) => setEssay(e.target.value)}
             />
@@ -82,7 +84,7 @@ export default function WritingAssess() {
               {loading ? (
                 <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div> Assessing...</>
               ) : (
-                <><Send size={16} className="mr-2" /> Assess My Writing</>
+                <><Send size={16} className="mr-2" /> {t('writing.assessButton')}</>
               )}
             </Button>
             <Button variant="secondary" onClick={handleReset}>
@@ -96,7 +98,7 @@ export default function WritingAssess() {
           {!result && !loading && !error && (
             <div className="bg-white rounded-2xl border border-border p-6 h-full flex flex-col items-center justify-center text-slate-400 text-sm text-center">
               <FileText size={40} className="mb-4 opacity-30" />
-              Write your essay and click "Assess My Writing" to get IELTS scores
+              {t('writing.essayPlaceholder')}
             </div>
           )}
 
@@ -104,7 +106,6 @@ export default function WritingAssess() {
             <div className="bg-white rounded-2xl border border-border p-6 flex flex-col items-center justify-center min-h-[300px]">
               <div className="w-12 h-12 border-4 border-slate-100 border-t-primary rounded-full animate-spin mb-4"></div>
               <p className="text-slate-500 font-medium">AI is grading your essay...</p>
-              <p className="text-slate-400 text-sm mt-1">This may take a few seconds</p>
             </div>
           )}
 
@@ -117,34 +118,34 @@ export default function WritingAssess() {
               {/* Overall Score */}
               <div className="bg-slate-900 text-white rounded-2xl p-6 text-center">
                 <div className="text-5xl font-bold text-accent-green mb-1">{result.overall_score}</div>
-                <div className="text-xs font-bold uppercase tracking-widest text-slate-400">Overall Band Score</div>
+                <div className="text-xs font-bold uppercase tracking-widest text-slate-400">{t('writing.overallBand')}</div>
               </div>
 
               {/* Criteria Scores */}
               <div className="bg-white rounded-2xl border border-border p-6 space-y-4">
                 <h4 className="font-bold text-slate-700 text-sm">Scoring Breakdown</h4>
-                <ScoreBar label="Task Achievement" score={result.task_achievement} />
-                <ScoreBar label="Coherence & Cohesion" score={result.coherence_cohesion} />
-                <ScoreBar label="Lexical Resource" score={result.lexical_resource} />
-                <ScoreBar label="Grammar Accuracy" score={result.grammar_accuracy} />
+                <ScoreBar label={t('writing.taskAchievement')} score={result.task_achievement} />
+                <ScoreBar label={t('writing.coherence')} score={result.coherence_cohesion} />
+                <ScoreBar label={t('writing.lexical')} score={result.lexical_resource} />
+                <ScoreBar label={t('writing.grammarAccuracy')} score={result.grammar_accuracy} />
               </div>
 
               {/* Feedback */}
               <div className="bg-yellow-50 rounded-2xl border border-yellow-100 p-6">
-                <h4 className="font-bold text-yellow-800 mb-2">AI Feedback</h4>
+                <h4 className="font-bold text-yellow-800 mb-2">{t('writing.aiFeedback')}</h4>
                 <p className="text-sm text-yellow-700 leading-relaxed">{result.feedback}</p>
               </div>
 
               {/* Corrections */}
               {result.corrections && result.corrections.length > 0 && (
                 <div className="bg-white rounded-2xl border border-border p-6">
-                  <h4 className="font-bold text-slate-700 mb-3 text-sm">Suggested Corrections</h4>
+                  <h4 className="font-bold text-slate-700 mb-3 text-sm">{t('writing.corrections')}</h4>
                   <div className="space-y-3 max-h-60 overflow-y-auto">
                     {result.corrections.map((c, i) => (
                       <div key={i} className="bg-slate-50 rounded-lg p-3">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-red-500 line-through text-sm">{c.original}</span>
-                          <span className="text-slate-400">→</span>
+                          <span className="text-slate-400">&rarr;</span>
                           <span className="text-green-600 font-medium text-sm">{c.corrected}</span>
                         </div>
                         <p className="text-xs text-slate-500">{c.explanation}</p>

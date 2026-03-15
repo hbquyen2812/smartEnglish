@@ -24,7 +24,12 @@ class SpeakingAttempt(models.Model):
     fluency = models.IntegerField(default=0)
     pronunciation = models.IntegerField(default=0)
     grammar = models.IntegerField(default=0)
+    lexical_resource = models.IntegerField(default=0)
     feedback = models.TextField(blank=True)
+    fluency_feedback = models.TextField(blank=True)
+    pronunciation_feedback = models.TextField(blank=True)
+    grammar_feedback = models.TextField(blank=True)
+    lexical_feedback = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

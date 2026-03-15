@@ -1,0 +1,135 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "reading": "Reading",
+    "listening": "Listening",
+    "speaking": "Speaking AI",
+    "grammar": "Grammar",
+    "writing": "Writing",
+    "summarizer": "Summarizer",
+    "progress": "My Progress",
+    "settings": "Settings",
+    "adminPanel": "Admin Panel",
+    "signOut": "Sign Out",
+    "learning": "Learning",
+    "account": "Account"
+  },
+  "dashboard": {
+    "welcome": "Welcome back",
+    "subtitle": "Let's learn something new today.",
+    "dailyGoal": "Daily Goal",
+    "dayStreak": "day streak",
+    "goal": "Goal",
+    "streak": "Streak",
+    "recommended": "Recommended for you",
+    "startLesson": "Start Lesson",
+    "viewAll": "View All",
+    "practiceAI": "Practice Speaking with AI",
+    "practiceDesc": "Improve your pronunciation and fluency with our AI-powered speaking practice."
+  },
+  "auth": {
+    "login": "Sign In",
+    "register": "Create Account",
+    "username": "Username",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "signUp": "Sign Up",
+    "signIn": "Sign In"
+  },
+  "course": {
+    "allLevels": "All Levels",
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced",
+    "questions": "questions",
+    "readingCourses": "Reading Courses",
+    "listeningCourses": "Listening Courses"
+  },
+  "lesson": {
+    "comprehensionCheck": "Comprehension Check",
+    "submitAnswers": "Submit Answers",
+    "yourScore": "Your Score",
+    "correct": "correct"
+  },
+  "speaking": {
+    "title": "Speaking Practice",
+    "startRecording": "Tap to start recording",
+    "recording": "Recording...",
+    "stopRecording": "Tap to stop",
+    "analyzing": "Analyzing your speech...",
+    "overallScore": "Overall Score",
+    "fluency": "Fluency",
+    "pronunciation": "Pronunciation",
+    "grammarScore": "Grammar",
+    "transcript": "Your Transcript",
+    "feedback": "AI Feedback",
+    "tryAgain": "Try Again",
+    "nextTopic": "Next Topic"
+  },
+  "grammar": {
+    "title": "Grammar Checker",
+    "placeholder": "Type or paste your English text here...",
+    "checkButton": "Check Grammar",
+    "reset": "Reset",
+    "noErrors": "No grammar errors found!",
+    "errorsFound": "errors found",
+    "correctedText": "Corrected Text",
+    "errorDetails": "Error Details"
+  },
+  "writing": {
+    "title": "Writing Assessment",
+    "topicLabel": "Essay Topic (optional)",
+    "essayPlaceholder": "Write your essay here...",
+    "assessButton": "Assess My Writing",
+    "reset": "Reset",
+    "overallBand": "Overall Band Score",
+    "taskAchievement": "Task Achievement",
+    "coherence": "Coherence & Cohesion",
+    "lexical": "Lexical Resource",
+    "grammarAccuracy": "Grammar Accuracy",
+    "aiFeedback": "AI Feedback",
+    "corrections": "Suggested Corrections",
+    "words": "words"
+  },
+  "summarize": {
+    "title": "Reading Summarizer",
+    "placeholder": "Paste an English article or paragraph here...",
+    "summarizeButton": "Summarize & Extract Vocabulary",
+    "reset": "Reset",
+    "summary": "Summary",
+    "vocabulary": "Key Vocabulary",
+    "words": "words"
+  },
+  "progress": {
+    "title": "My Progress",
+    "lessonsCompleted": "Lessons Completed",
+    "averageScore": "Average Score",
+    "currentLevel": "Current Level",
+    "dayStreak": "Day Streak",
+    "completedLessons": "Completed Lessons",
+    "noLessons": "No lessons completed yet. Start learning!",
+    "excellent": "Excellent",
+    "good": "Good",
+    "needsWork": "Needs Work"
+  },
+  "landing": {
+    "heroTitle": "Master English with AI-Powered Learning",
+    "heroSubtitle": "Personalized learning experience powered by artificial intelligence",
+    "getStarted": "Get Started",
+    "signIn": "Sign In"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "language": "Language"
+  }
+}

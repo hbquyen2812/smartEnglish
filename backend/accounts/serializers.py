@@ -28,10 +28,21 @@ class RegisterSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
     email = serializers.CharField(source='user.email', read_only=True)
+    today_completed = serializers.SerializerMethodField()
 
     class Meta:
         model = UserProfile
-        fields = ['username', 'email', 'avatar', 'level', 'daily_goal', 'streak']
+        fields = ['username', 'email', 'avatar', 'role', 'level', 'daily_goal', 'streak', 'today_completed']
+        read_only_fields = ['role']
+
+    def get_today_completed(self, obj):
+        from django.utils import timezone
+        today = timezone.now().date()
+        return UserProgress.objects.filter(
+            user=obj.user,
+            completed=True,
+            completed_at__date=today,
+        ).count()
 
 
 class UserProgressSerializer(serializers.ModelSerializer):

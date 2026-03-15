@@ -3,8 +3,10 @@ import { Send, RotateCcw, BookOpen, Sparkles } from 'lucide-react';
 import Button from '../../components/UI/Button';
 import Badge from '../../components/UI/Badge';
 import { aiAPI } from '../../services/api';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 export default function ReadingSummarize() {
+  const { t } = useLanguage();
   const [text, setText] = useState('');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -35,7 +37,7 @@ export default function ReadingSummarize() {
   return (
     <div className="max-w-5xl mx-auto">
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-slate-900 mb-2">Reading Summarizer & Vocabulary</h2>
+        <h2 className="text-2xl font-bold text-slate-900 mb-2">{t('summarize.title')}</h2>
         <p className="text-slate-500">Paste any English article and AI will summarize it and extract 10 important vocabulary words.</p>
       </div>
 
@@ -43,11 +45,11 @@ export default function ReadingSummarize() {
       <div className="bg-white rounded-2xl border border-border p-6 mb-6">
         <div className="flex justify-between items-center mb-3">
           <h3 className="font-bold text-slate-700">Paste your article</h3>
-          <span className="text-xs text-slate-400">{text.split(/\s+/).filter(Boolean).length} words</span>
+          <span className="text-xs text-slate-400">{text.split(/\s+/).filter(Boolean).length} {t('summarize.words')}</span>
         </div>
         <textarea
           className="w-full h-48 p-4 border border-slate-200 rounded-xl resize-none focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-slate-700 placeholder:text-slate-400 leading-relaxed"
-          placeholder="Paste an English article, news, or any text here..."
+          placeholder={t('summarize.placeholder')}
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
@@ -56,7 +58,7 @@ export default function ReadingSummarize() {
             {loading ? (
               <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div> Processing...</>
             ) : (
-              <><Sparkles size={16} className="mr-2" /> Summarize & Extract Vocabulary</>
+              <><Sparkles size={16} className="mr-2" /> {t('summarize.summarizeButton')}</>
             )}
           </Button>
           <Button variant="secondary" onClick={handleReset}>
@@ -82,14 +84,14 @@ export default function ReadingSummarize() {
           <div className="lg:col-span-3 bg-white rounded-2xl border border-border p-6">
             <div className="flex items-center gap-2 mb-3">
               <BookOpen size={18} className="text-primary" />
-              <h3 className="font-bold text-slate-700">Summary</h3>
+              <h3 className="font-bold text-slate-700">{t('summarize.summary')}</h3>
             </div>
             <p className="text-slate-600 leading-relaxed">{result.summary}</p>
           </div>
 
           {/* Vocabulary */}
           <div className="lg:col-span-3">
-            <h3 className="font-bold text-slate-700 mb-4">Key Vocabulary ({result.vocabulary?.length || 0} words)</h3>
+            <h3 className="font-bold text-slate-700 mb-4">{t('summarize.vocabulary')} ({result.vocabulary?.length || 0} {t('summarize.words')})</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {result.vocabulary && result.vocabulary.map((word, i) => (
                 <div key={i} className="bg-white rounded-xl border border-border p-4 hover:shadow-soft transition-shadow">

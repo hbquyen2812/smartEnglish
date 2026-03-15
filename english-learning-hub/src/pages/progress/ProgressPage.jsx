@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Trophy, BookOpen, CheckCircle, Clock } from 'lucide-react';
 import Badge from '../../components/UI/Badge';
 import { progressAPI, profileAPI } from '../../services/api';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const StatCard = ({ icon: Icon, label, value, color }) => (
   <div className="bg-white rounded-xl border border-border p-5 flex items-center gap-4">
@@ -16,9 +17,11 @@ const StatCard = ({ icon: Icon, label, value, color }) => (
 );
 
 export default function ProgressPage() {
+  const { t } = useLanguage();
   const [progress, setProgress] = useState([]);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -32,6 +35,7 @@ export default function ProgressPage() {
         setProfile(profileRes.data);
       } catch (err) {
         console.error("Failed to fetch progress:", err);
+        setError("Failed to load progress data.");
       } finally {
         setLoading(false);
       }
@@ -44,34 +48,34 @@ export default function ProgressPage() {
     ? Math.round(progress.reduce((sum, p) => sum + (p.score || 0), 0) / progress.length)
     : 0;
 
-  if (loading) return <div className="text-center py-10">Loading progress...</div>;
+  if (loading) return <div className="text-center py-10">{t('common.loading')}</div>;
+  if (error) return <div className="text-center py-10 text-red-500">{error}</div>;
 
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-slate-900 mb-2">My Progress</h2>
+        <h2 className="text-2xl font-bold text-slate-900 mb-2">{t('progress.title')}</h2>
         <p className="text-slate-500">Track your learning journey and achievements.</p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatCard icon={BookOpen} label="Lessons Completed" value={completedCount} color="bg-primary" />
-        <StatCard icon={Trophy} label="Average Score" value={`${avgScore}%`} color="bg-accent-green" />
-        <StatCard icon={CheckCircle} label="Current Level" value={profile?.level || 'Beginner'} color="bg-accent-purple" />
-        <StatCard icon={Clock} label="Day Streak" value={profile?.streak || 0} color="bg-accent-yellow" />
+        <StatCard icon={BookOpen} label={t('progress.lessonsCompleted')} value={completedCount} color="bg-primary" />
+        <StatCard icon={Trophy} label={t('progress.averageScore')} value={`${avgScore}%`} color="bg-accent-green" />
+        <StatCard icon={CheckCircle} label={t('progress.currentLevel')} value={profile?.level || 'Beginner'} color="bg-accent-purple" />
+        <StatCard icon={Clock} label={t('progress.dayStreak')} value={profile?.streak || 0} color="bg-accent-yellow" />
       </div>
 
       {/* Progress List */}
       <div className="bg-white rounded-2xl border border-border overflow-hidden">
         <div className="p-5 border-b border-border">
-          <h3 className="font-bold text-slate-700">Completed Lessons</h3>
+          <h3 className="font-bold text-slate-700">{t('progress.completedLessons')}</h3>
         </div>
 
         {progress.length === 0 ? (
           <div className="p-12 text-center text-slate-400">
             <BookOpen size={40} className="mx-auto mb-4 opacity-30" />
-            <p className="font-medium">No completed lessons yet</p>
-            <p className="text-sm mt-1">Start learning to track your progress here!</p>
+            <p className="font-medium">{t('progress.noLessons')}</p>
           </div>
         ) : (
           <div className="divide-y divide-border">
@@ -91,7 +95,7 @@ export default function ProgressPage() {
                 <div className="text-right">
                   <div className="text-lg font-bold text-slate-900">{Math.round(item.score || 0)}%</div>
                   <Badge
-                    text={item.score >= 80 ? 'Excellent' : item.score >= 50 ? 'Good' : 'Needs Work'}
+                    text={item.score >= 80 ? t('progress.excellent') : item.score >= 50 ? t('progress.good') : t('progress.needsWork')}
                     color={item.score >= 80 ? 'green' : item.score >= 50 ? 'yellow' : 'red'}
                   />
                 </div>

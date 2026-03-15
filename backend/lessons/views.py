@@ -2,9 +2,10 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.utils import timezone
+from datetime import timedelta
 from .models import Lesson
 from .serializers import LessonListSerializer, LessonDetailSerializer
-from accounts.models import UserProgress
+from accounts.models import UserProfile, UserProgress
 
 
 class LessonListView(generics.ListAPIView):
@@ -57,15 +58,61 @@ class SubmitAnswersView(APIView):
                 'question_id': question.id,
                 'correct': is_correct,
                 'correct_answer': correct_option.id if correct_option else None,
+                'correct_answer_text': correct_option.text if correct_option else '',
+                'question_text': question.text,
             })
 
         score = (correct / total * 100) if total > 0 else 0
 
-        UserProgress.objects.update_or_create(
+        progress, created = UserProgress.objects.update_or_create(
             user=request.user,
             lesson=lesson,
             defaults={'completed': True, 'score': score, 'completed_at': timezone.now()},
         )
+
+        # Update streak & daily goal progress
+        if created:
+            profile, _ = UserProfile.objects.get_or_create(user=request.user)
+            today = timezone.now().date()
+            yesterday = today - timedelta(days=1)
+
+            # Check if user completed a lesson yesterday (to continue streak)
+            had_yesterday = UserProgress.objects.filter(
+                user=request.user,
+                completed=True,
+                completed_at__date=yesterday,
+            ).exists()
+
+            had_today_before = UserProgress.objects.filter(
+                user=request.user,
+                completed=True,
+                completed_at__date=today,
+            ).exclude(pk=progress.pk).exists()
+
+            if not had_today_before:
+                # First lesson today
+                if had_yesterday:
+                    profile.streak += 1
+                else:
+                    profile.streak = 1
+                profile.save()
+
+        # Generate explanations using AI (non-blocking: skip if fails)
+        explanations = {}
+        try:
+            from ai_services.gemini_client import GeminiClient
+            client = GeminiClient()
+            explanations = client.explain_answers(
+                lesson.reading_text,
+                [{'question': r['question_text'], 'correct_answer': r['correct_answer_text']} for r in results]
+            )
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+
+        # Attach explanations to results
+        for i, r in enumerate(results):
+            r['explanation'] = explanations.get(str(i), '')
 
         return Response({
             'score': score,
