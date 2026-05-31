@@ -1,29 +1,42 @@
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.pagination import PageNumberPagination
 from django.utils import timezone
+from django.db.models import Q
 from datetime import timedelta
 from .models import Lesson
 from .serializers import LessonListSerializer, LessonDetailSerializer
 from accounts.models import UserProfile, UserProgress
 
 
+class LessonPagination(PageNumberPagination):
+    """6 bài/trang. Có thể tăng qua ?page_size=... (tối đa 1000)."""
+    page_size = 6
+    page_size_query_param = 'page_size'
+    max_page_size = 1000
+
+
 class LessonListView(generics.ListAPIView):
     serializer_class = LessonListSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = LessonPagination
 
     def get_queryset(self):
         qs = Lesson.objects.all()
         lesson_type = self.request.query_params.get('type')
         level = self.request.query_params.get('level')
         recommended = self.request.query_params.get('recommended')
+        search = self.request.query_params.get('search')
 
         if lesson_type:
             qs = qs.filter(lesson_type=lesson_type)
-        if level:
+        if level and level != 'All':
             qs = qs.filter(level=level)
         if recommended:
             qs = qs.filter(is_recommended=True)
+        if search:
+            qs = qs.filter(Q(title__icontains=search) | Q(tag__icontains=search))
         return qs
 
 

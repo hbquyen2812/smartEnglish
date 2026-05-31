@@ -34,6 +34,10 @@ export default function DashboardHome() {
     fetchData();
   }, []);
 
+  // Chỉ hiện tối đa 6 bài đề xuất (ưu tiên is_recommended), tránh dồn quá nhiều thẻ
+  const recommendedLessons = lessons.filter(l => l.is_recommended);
+  const displayLessons = (recommendedLessons.length ? recommendedLessons : lessons).slice(0, 6);
+
   const completedIds = progress.filter(p => p.completed).map(p => p.lesson);
   const completedCount = completedIds.length;
   const todayLessons = progress.filter(p => {
@@ -109,7 +113,7 @@ export default function DashboardHome() {
 
       {!loading && !error && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-           {lessons.map(lesson => {
+           {displayLessons.map(lesson => {
                const isCompleted = completedIds.includes(lesson.id);
                const lessonPath = `/dashboard/${lesson.lesson_type}/${lesson.id}`;
                return (
@@ -118,6 +122,7 @@ export default function DashboardHome() {
                        <div className="h-40 overflow-hidden relative">
                            <img
                               src={lesson.image || "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=500"}
+                              onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=500"; }}
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                               alt={lesson.title}
                            />
