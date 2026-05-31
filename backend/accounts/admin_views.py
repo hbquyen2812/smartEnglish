@@ -161,6 +161,17 @@ class AdminUserDetailView(APIView):
 
 # ─── Lesson CRUD ───
 
+def _auto_generate_audio(lesson):
+    """Sinh audio TTS cho bài Listening có transcript. Bọc an toàn để không
+    làm hỏng việc lưu nếu gTTS lỗi (vd mất mạng)."""
+    if lesson.lesson_type == 'listening' and (lesson.reading_text or '').strip():
+        try:
+            from ai_services.tts import generate_lesson_audio
+            generate_lesson_audio(lesson, force=False)
+        except Exception:
+            pass
+
+
 class AdminLessonListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAdmin]
     serializer_class = AdminLessonSerializer
@@ -175,11 +186,19 @@ class AdminLessonListCreateView(generics.ListCreateAPIView):
             qs = qs.filter(level=level)
         return qs
 
+    def perform_create(self, serializer):
+        lesson = serializer.save()
+        _auto_generate_audio(lesson)
+
 
 class AdminLessonDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdmin]
     serializer_class = AdminLessonSerializer
     queryset = Lesson.objects.all()
+
+    def perform_update(self, serializer):
+        lesson = serializer.save()
+        _auto_generate_audio(lesson)
 
 
 # ─── Speaking Topic CRUD ───

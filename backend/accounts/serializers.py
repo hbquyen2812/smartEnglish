@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password as django_validate_password
 from .models import UserProfile, UserProgress
 
 
@@ -10,6 +11,16 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'email', 'password']
+
+    def validate_password(self, value):
+        # Áp dụng ràng buộc mật khẩu của Django: chặn mật khẩu toàn số (vd 123456),
+        # quá phổ biến, quá ngắn, hoặc quá giống username/email.
+        temp_user = User(
+            username=self.initial_data.get('username', ''),
+            email=self.initial_data.get('email', '') or '',
+        )
+        django_validate_password(value, user=temp_user)
+        return value
 
     def create(self, validated_data):
         email = validated_data.get('email', '')
