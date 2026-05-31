@@ -3,6 +3,9 @@ Run: python manage.py shell < seed_more.py
 """
 from lessons.models import Lesson, Question, AnswerOption
 
+# Idempotent: clear this script's own lessons (order 7-12) before recreating
+Lesson.objects.filter(order__gte=7, order__lte=12).delete()
+
 # === NEW READING LESSONS ===
 
 r4 = Lesson.objects.create(

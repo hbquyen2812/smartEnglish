@@ -5,6 +5,9 @@ Seed data script - Run after migrate:
 from lessons.models import Lesson, Question, AnswerOption
 from speaking.models import SpeakingTopic
 
+# Idempotent: clear this script's own lessons (order 1-6) before recreating
+Lesson.objects.filter(order__gte=1, order__lte=6).delete()
+
 # ===== LESSONS =====
 
 # Reading lessons
@@ -103,7 +106,7 @@ l1 = Lesson.objects.create(
     tag="Business",
     image="https://images.unsplash.com/photo-1565688534245-05d6b5be184a?w=500",
     duration="5 min",
-    reading_text="[This is a listening lesson - audio content will be played]",
+    reading_text="A job interview is your chance to make a good impression on a future employer, so good preparation is very important. Before the interview, you should research the company. Learn about what they do, their products, and their values. This shows the interviewer that you are genuinely interested in the job. You should also prepare answers to common questions, such as why you want the job and what your strengths are. However, do not memorise a script word for word, because it will sound unnatural. On the day of the interview, dress neatly and arrive about ten minutes early. During the interview, listen carefully, speak clearly, and make eye contact. At the end, it is a good idea to ask a question of your own, which shows enthusiasm. Finally, remember to thank the interviewer for their time.",
     is_recommended=False,
     order=4,
 )
@@ -113,6 +116,16 @@ AnswerOption.objects.create(question=q7, text="Research the company", is_correct
 AnswerOption.objects.create(question=q7, text="Do nothing special", order=2)
 AnswerOption.objects.create(question=q7, text="Memorize a script word for word", order=3)
 
+q7b = Question.objects.create(lesson=l1, text="When should you arrive for the interview?", order=2)
+AnswerOption.objects.create(question=q7b, text="About ten minutes early", is_correct=True, order=1)
+AnswerOption.objects.create(question=q7b, text="Exactly on time to the second", order=2)
+AnswerOption.objects.create(question=q7b, text="Thirty minutes late", order=3)
+
+q7c = Question.objects.create(lesson=l1, text="Why is asking your own question a good idea?", order=3)
+AnswerOption.objects.create(question=q7c, text="It shows enthusiasm and interest", is_correct=True, order=1)
+AnswerOption.objects.create(question=q7c, text="It wastes the interviewer's time", order=2)
+AnswerOption.objects.create(question=q7c, text="It is not allowed", order=3)
+
 l2 = Lesson.objects.create(
     title="Travel Vocabulary",
     lesson_type="listening",
@@ -120,10 +133,26 @@ l2 = Lesson.objects.create(
     tag="Travel",
     image="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=500",
     duration="3 min",
-    reading_text="[This is a listening lesson - audio content will be played]",
+    reading_text="When you travel to a new country, knowing some basic vocabulary can make your trip much easier. Let's learn a few important words. A passport is the document you need to enter another country. A visa is special permission to visit or stay in a country for a period of time. When you arrive, you go through customs, where officers may check your bags. If you need a place to sleep, you can book a room at a hotel or a cheaper hostel. To move around the city, you can take public transport such as a bus, a train, or the subway. If you get lost, you can ask a local for directions, or use a map on your phone. Remember to keep your money and documents safe at all times.",
     is_recommended=False,
     order=5,
 )
+
+q8 = Question.objects.create(lesson=l2, text="What document do you need to enter another country?", order=1)
+AnswerOption.objects.create(question=q8, text="A hotel key", order=1)
+AnswerOption.objects.create(question=q8, text="A passport", is_correct=True, order=2)
+AnswerOption.objects.create(question=q8, text="A bus ticket", order=3)
+
+q9 = Question.objects.create(lesson=l2, text="Where do officers check your bags when you arrive?", order=2)
+AnswerOption.objects.create(question=q9, text="At customs", is_correct=True, order=1)
+AnswerOption.objects.create(question=q9, text="At the hotel", order=2)
+AnswerOption.objects.create(question=q9, text="On the subway", order=3)
+
+q10 = Question.objects.create(lesson=l2, text="What is a cheaper alternative to a hotel?", order=3)
+AnswerOption.objects.create(question=q10, text="A passport", order=1)
+AnswerOption.objects.create(question=q10, text="A hostel", is_correct=True, order=2)
+AnswerOption.objects.create(question=q10, text="A visa", order=3)
+
 
 l3 = Lesson.objects.create(
     title="Academic Lecture: Psychology",
@@ -132,50 +161,32 @@ l3 = Lesson.objects.create(
     tag="Science",
     image="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500",
     duration="10 min",
-    reading_text="[This is a listening lesson - audio content will be played]",
+    reading_text="Good morning, everyone. Today we will discuss the concept of memory in cognitive psychology. Memory is not a single system but rather consists of several different types. First, we have sensory memory, which holds information for a very short time, usually less than a second. Next is short-term memory, sometimes called working memory, which can hold about seven items for around twenty seconds. Finally, long-term memory can store information for years, or even a lifetime. An important process is consolidation, in which short-term memories are gradually transformed into long-term memories, often during sleep. Researchers have also found that information is easier to remember when it is meaningful and connected to what we already know. This is why simply repeating facts is less effective than understanding them deeply.",
     is_recommended=False,
     order=6,
 )
 
+q11 = Question.objects.create(lesson=l3, text="How long does sensory memory typically hold information?", order=1)
+AnswerOption.objects.create(question=q11, text="Less than a second", is_correct=True, order=1)
+AnswerOption.objects.create(question=q11, text="Twenty seconds", order=2)
+AnswerOption.objects.create(question=q11, text="Several years", order=3)
+
+q12 = Question.objects.create(lesson=l3, text="What process turns short-term memories into long-term memories?", order=2)
+AnswerOption.objects.create(question=q12, text="Repetition", order=1)
+AnswerOption.objects.create(question=q12, text="Consolidation", is_correct=True, order=2)
+AnswerOption.objects.create(question=q12, text="Sensation", order=3)
+
+q13 = Question.objects.create(lesson=l3, text="According to the lecture, information is easier to remember when it is:", order=3)
+AnswerOption.objects.create(question=q13, text="Meaningful and connected to prior knowledge", is_correct=True, order=1)
+AnswerOption.objects.create(question=q13, text="Repeated many times without understanding", order=2)
+AnswerOption.objects.create(question=q13, text="Completely new and unfamiliar", order=3)
+
 # ===== SPEAKING TOPICS =====
-
-SpeakingTopic.objects.create(
-    title="Education & Technology",
-    category="IELTS Speaking Part 3",
-    prompt_question="How has technology changed the way we learn?",
-    order=1,
-)
-
-SpeakingTopic.objects.create(
-    title="Environment & Future",
-    category="IELTS Speaking Part 3",
-    prompt_question="What do you think individuals can do to help protect the environment?",
-    order=2,
-)
-
-SpeakingTopic.objects.create(
-    title="Work & Career",
-    category="IELTS Speaking Part 2",
-    prompt_question="Describe a job you would like to have in the future. Why does this job appeal to you?",
-    order=3,
-)
-
-SpeakingTopic.objects.create(
-    title="Daily Routine",
-    category="IELTS Speaking Part 1",
-    prompt_question="Tell me about your typical day. What do you usually do in the morning?",
-    order=4,
-)
-
-SpeakingTopic.objects.create(
-    title="Travel & Culture",
-    category="IELTS Speaking Part 2",
-    prompt_question="Describe a place you have visited that impressed you. What made it special?",
-    order=5,
-)
+# LƯU Ý: Chủ đề Speaking được seed RIÊNG ở file seed_speaking.py (đúng field part/description).
+# Chạy sau file này:  python manage.py shell < seed_speaking.py
 
 print("Seed data created successfully!")
 print(f"  - {Lesson.objects.count()} lessons")
 print(f"  - {Question.objects.count()} questions")
 print(f"  - {AnswerOption.objects.count()} answer options")
-print(f"  - {SpeakingTopic.objects.count()} speaking topics")
+print(f"  - {SpeakingTopic.objects.count()} speaking topics (run seed_speaking.py to create)")
