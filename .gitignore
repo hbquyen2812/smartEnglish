@@ -14,8 +14,16 @@ env/
 # Environment variables (chứa mật khẩu, API key)
 .env
 
-# Media uploads
-backend/media/
+# Static files do collectstatic sinh ra khi deploy (không commit)
+backend/staticfiles/
+
+# Media uploads (bỏ qua ghi âm người dùng, GIỮ lại audio bài nghe để deploy)
+backend/media/*
+!backend/media/lesson_audio/
+backend/media/speaking_recordings/
+
+# Cho phép giữ file mẫu trong .env.example (chỉ ignore .env thật)
+!.env.example
 
 # IDE
 .vscode/

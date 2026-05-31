@@ -1,0 +1,27 @@
+# Render Blueprint - tự động dựng backend Django.
+# Vào Render → New → Blueprint → trỏ tới repo này, Render đọc file này.
+services:
+  - type: web
+    name: smartenglish-backend
+    runtime: python
+    rootDir: backend            # code Django nằm trong thư mục backend/
+    plan: free
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn smartenglish.wsgi:application"
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true     # Render tự sinh khóa bí mật
+      - key: DEBUG
+        value: "False"
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      # DATABASE_URL: dán chuỗi kết nối Neon vào (Dashboard → Environment).
+      # Để sync:false nghĩa là KHÔNG ghi vào file, nhập tay trên web cho an toàn.
+      - key: DATABASE_URL
+        sync: false
+      # GEMINI_API_KEY: dán khóa Gemini của bạn (nhập tay).
+      - key: GEMINI_API_KEY
+        sync: false
+      # FRONTEND_ORIGINS: domain Vercel sau khi deploy frontend, vd https://smartenglish.vercel.app
+      - key: FRONTEND_ORIGINS
+        sync: false
