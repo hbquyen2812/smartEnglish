@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { BookOpen, Headphones, Mic, FileText, Activity, LayoutGrid, LogOut, ChevronRight, PenTool, Sparkles, Shield, Globe, Pencil, Settings } from 'lucide-react';
+import { BookOpen, Headphones, Mic, FileText, Activity, LayoutGrid, LogOut, ChevronRight, PenTool, Sparkles, Shield, Globe, Pencil, Settings, MessageSquare } from 'lucide-react';
 import { profileAPI } from '../services/api';
 import { useLanguage } from '../i18n/LanguageContext';
 
@@ -114,7 +114,8 @@ export default function DashboardLayout() {
           <NavItem icon={LayoutGrid} label={t('nav.dashboard')} path="/dashboard" isActive={p === '/dashboard'} />
           <NavItem icon={BookOpen} label={t('nav.reading')} path="/dashboard/reading" isActive={p.includes('reading')} />
           <NavItem icon={Headphones} label={t('nav.listening')} path="/dashboard/listening" isActive={p.includes('listening')} />
-          <NavItem icon={Mic} label={t('nav.speaking')} path="/dashboard/speaking" isActive={p.includes('speaking')} />
+          <NavItem icon={Mic} label={t('nav.speaking')} path="/dashboard/speaking" isActive={p.includes('speaking') && !p.includes('speaking-chat')} />
+          <NavItem icon={MessageSquare} label="Speaking Chat" path="/dashboard/speaking-chat" isActive={p.includes('speaking-chat')} />
           <NavItem icon={FileText} label={t('nav.grammar')} path="/dashboard/grammar" isActive={p.includes('grammar')} />
           <NavItem icon={PenTool} label={t('nav.writing')} path="/dashboard/writing" isActive={p.includes('writing')} />
           <NavItem icon={Sparkles} label={t('nav.summarizer')} path="/dashboard/summarize" isActive={p.includes('summarize')} />

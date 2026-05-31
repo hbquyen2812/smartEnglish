@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8000/api';
+// Local: dùng localhost. Production (Vercel): đặt biến VITE_API_URL trong dashboard.
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -9,11 +10,15 @@ const api = axios.create({
   },
 });
 
-// Tự động thêm Token vào Header nếu đã đăng nhập
+// Tự động thêm Token vào Header nếu đã đăng nhập (bỏ qua cho login/register)
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('accessToken');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  const url = config.url || '';
+  const isAuthRequest = url.includes('/token') || url.includes('/register');
+  if (!isAuthRequest) {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
   }
   return config;
 });
@@ -65,8 +70,18 @@ export const authAPI = {
 
 // API Bài học
 export const lessonAPI = {
-  getRecommended: () => api.get('/lessons/'),
-  getByType: (type) => api.get(`/lessons/?type=${type}`),
+  // Dashboard cần lấy hết bài (không phân trang) -> page_size lớn
+  getRecommended: () => api.get('/lessons/', { params: { page_size: 1000 } }),
+  // Danh sách có phân trang + lọc cấp độ + tìm kiếm
+  getByType: (type, { level, page = 1, search } = {}) =>
+    api.get('/lessons/', {
+      params: {
+        type,
+        page,
+        ...(level && level !== 'All' ? { level } : {}),
+        ...(search ? { search } : {}),
+      },
+    }),
   getDetail: (id) => api.get(`/lessons/${id}/`),
   submitAnswers: (lessonId, answers) => api.post(`/lessons/${lessonId}/submit/`, { answers }),
 };
@@ -84,6 +99,7 @@ export const speakingAPI = {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
+  chat: (history, topic) => api.post('/speaking/chat/', { history, topic }),
 };
 
 // API AI Features

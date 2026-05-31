@@ -11,6 +11,7 @@ import ForgotPassword from './pages/auth/ForgotPassword';
 import CourseList from './pages/course/CourseList';
 import LessonDetail from './pages/course/LessonDetail';
 import SpeakingAI from './pages/speaking/SpeakingAI';
+import SpeakingChat from './pages/speaking/SpeakingChat';
 import GrammarCheck from './pages/grammar/GrammarCheck';
 import WritingAssess from './pages/writing/WritingAssess';
 import ReadingSummarize from './pages/summarize/ReadingSummarize';
@@ -41,6 +42,7 @@ function App() {
         <Route path="reading/:id" element={<LessonDetail type="reading" />} />
 
         <Route path="speaking" element={<SpeakingAI />} />
+        <Route path="speaking-chat" element={<SpeakingChat />} />
         <Route path="grammar" element={<GrammarCheck />} />
         <Route path="writing" element={<WritingAssess />} />
         <Route path="summarize" element={<ReadingSummarize />} />

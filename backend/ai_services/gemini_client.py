@@ -61,6 +61,56 @@ Return ONLY the JSON, no other text."""
                 'feedback': 'AI assessment temporarily unavailable. Please try again.',
             }
 
+    def speaking_chat(self, history, topic=None):
+        """Chatbot hội thoại: AI đóng vai giám khảo IELTS, trả lời theo lượt
+        và sửa lỗi ngữ pháp/từ vựng trong câu vừa rồi của người dùng.
+
+        history: list các dict {"role": "user"|"assistant", "content": "..."}
+        """
+        # Ghép lịch sử hội thoại thành text
+        convo = '\n'.join([
+            f'{"Student" if m["role"] == "user" else "Examiner"}: {m["content"]}'
+            for m in history
+        ])
+        last_user = next((m['content'] for m in reversed(history) if m['role'] == 'user'), '')
+
+        prompt = f"""You are a friendly IELTS Speaking examiner having a natural conversation with a student.
+Topic of this session: {topic or 'free conversation / getting to know each other'}
+
+Conversation so far:
+{convo}
+
+Your job:
+1. Reply naturally as the examiner: keep it SHORT (1-3 sentences), be encouraging, and ALWAYS end with a follow-up question to keep the conversation going.
+2. Instantly check the student's LAST message for grammar/vocabulary/word-choice mistakes.
+
+Return ONLY a JSON object:
+{{
+    "reply": "<your short conversational reply ending with a question>",
+    "has_error": <true if the student's last message had any mistake, else false>,
+    "correction": "<if has_error: the corrected version of their sentence; else empty string>",
+    "note": "<if has_error: 1 short sentence explaining the fix; else empty string>"
+}}
+
+The student's last message was: "{last_user}"
+Return ONLY the JSON, no other text."""
+
+        try:
+            data = _parse_json_response(self._generate(prompt))
+            return {
+                'reply': data.get('reply', "Let's continue. Can you tell me more?"),
+                'has_error': bool(data.get('has_error', False)),
+                'correction': data.get('correction', ''),
+                'note': data.get('note', ''),
+            }
+        except Exception:
+            return {
+                'reply': "Sorry, I had trouble responding. Could you say that again?",
+                'has_error': False,
+                'correction': '',
+                'note': '',
+            }
+
     def summarize_and_extract_vocab(self, text):
         prompt = f"""Analyze this English text for a language learner:
 
@@ -198,3 +248,35 @@ Return ONLY the JSON, no other text."""
                 'is_correct': False,
                 'error': 'AI service temporarily unavailable. Please try again.',
             }
+
+    def generate_lesson_content(self, lesson_type, level, topic):
+        """Sinh nội dung 1 bài học (Reading hoặc Listening) bằng AI.
+        Trả về dict: {title, tag, duration, passage, questions:[{text, options:[{text,is_correct}]}]}
+        """
+        kind = (
+            'a short reading passage in article style'
+            if lesson_type == 'reading'
+            else 'a natural spoken transcript (as if a person is speaking), for a listening exercise'
+        )
+        prompt = f"""Create one English learning lesson for a {level}-level learner.
+Topic: {topic}
+
+Write {kind} of about 120-180 words, appropriate for {level} learners.
+Then write EXACTLY 3 multiple-choice comprehension questions. Each question has EXACTLY 3 options,
+and EXACTLY ONE option is correct.
+
+Return ONLY this JSON (no extra text):
+{{
+    "title": "<short lesson title>",
+    "tag": "<one or two word category, e.g. Travel, Science>",
+    "duration": "<e.g. 4 min>",
+    "passage": "<the passage or transcript text>",
+    "questions": [
+        {{"text": "<question>", "options": [
+            {{"text": "<option>", "is_correct": true}},
+            {{"text": "<option>", "is_correct": false}},
+            {{"text": "<option>", "is_correct": false}}
+        ]}}
+    ]
+}}"""
+        return _parse_json_response(self._generate(prompt))

@@ -88,3 +88,21 @@ class SpeakingAnalyzeView(APIView):
             'grammar_feedback': result.get('grammar_feedback', ''),
             'lexical_feedback': result.get('lexical_feedback', ''),
         })
+
+
+class SpeakingChatView(APIView):
+    """Chatbot luyện Speaking: hội thoại nhiều lượt + sửa lỗi ngữ pháp tức thì.
+    Frontend giữ lịch sử và gửi lên mỗi lượt (stateless)."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        history = request.data.get('history', [])
+        topic = request.data.get('topic', '')
+
+        if not isinstance(history, list) or not history:
+            return Response({'error': 'No conversation history provided'}, status=400)
+
+        from ai_services.gemini_client import GeminiClient
+        client = GeminiClient()
+        result = client.speaking_chat(history, topic)
+        return Response(result)
