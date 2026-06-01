@@ -142,8 +142,12 @@ _extra_origins = os.getenv('FRONTEND_ORIGINS', '')
 if _extra_origins:
     CORS_ALLOWED_ORIGINS += [o.strip() for o in _extra_origins.split(',') if o.strip()]
 
+# Cho phép MỌI domain *.vercel.app (gồm cả URL preview) -> khỏi phụ thuộc FRONTEND_ORIGINS
+CORS_ALLOWED_ORIGIN_REGEXES = [r'^https://.*\.vercel\.app$']
+
 # CSRF cho các domain HTTPS production (cần cho Django Admin khi deploy)
 CSRF_TRUSTED_ORIGINS = [o for o in CORS_ALLOWED_ORIGINS if o.startswith('https://')]
+CSRF_TRUSTED_ORIGINS.append('https://*.vercel.app')
 if RENDER_HOST:
     CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_HOST}')
 
