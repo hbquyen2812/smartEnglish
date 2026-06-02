@@ -1,14 +1,26 @@
 from django.contrib import admin
 from django.urls import path, re_path, include
 from django.conf import settings
+from django.db import connection
 from django.http import JsonResponse
 from django.views.static import serve
 from rest_framework_simplejwt.views import TokenRefreshView
 from accounts.views import LoginView
 
+
+def healthz(request):
+    """Health-check: chạm nhẹ vào DB để giữ CẢ Render lẫn Neon luôn thức."""
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT 1')
+        db = 'ok'
+    except Exception:
+        db = 'error'
+    return JsonResponse({'status': 'ok', 'db': db})
+
+
 urlpatterns = [
-    # Health-check: trả 200 nhanh, không cần đăng nhập (dùng cho UptimeRobot giữ server thức)
-    path('healthz/', lambda request: JsonResponse({'status': 'ok'})),
+    path('healthz/', healthz),
     path('admin/', admin.site.urls),
     # JWT Auth
     path('api/token/', LoginView.as_view(), name='token_obtain_pair'),
