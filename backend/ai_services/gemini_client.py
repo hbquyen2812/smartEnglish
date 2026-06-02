@@ -1,7 +1,7 @@
 import os
 import json
 import re
-from google import genai
+from groq import Groq
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -15,20 +15,25 @@ def _parse_json_response(text):
 
 
 class GeminiClient:
+    """Tên giữ nguyên cho tương thích, nhưng động cơ AI nay là Groq
+    (miễn phí, nhanh, hạn mức cao hơn Gemini rất nhiều)."""
+
     def __init__(self):
-        api_key = os.getenv('GEMINI_API_KEY')
-        if not api_key or api_key == 'your_gemini_api_key_here':
-            raise ValueError("GEMINI_API_KEY is not configured. Get one from https://aistudio.google.com/apikey")
-        self.client = genai.Client(api_key=api_key)
-        self.model = 'gemini-2.5-flash-lite'
+        api_key = os.getenv('GROQ_API_KEY')
+        if not api_key:
+            raise ValueError("GROQ_API_KEY is not configured. Get one free at https://console.groq.com")
+        self.client = Groq(api_key=api_key)
+        self.model = 'llama-3.3-70b-versatile'
 
     def _generate(self, prompt):
-        """Call Gemini API and return the response text."""
-        response = self.client.models.generate_content(
+        """Call Groq API and return the response text (ép trả JSON thuần)."""
+        response = self.client.chat.completions.create(
             model=self.model,
-            contents=prompt,
+            messages=[{'role': 'user', 'content': prompt}],
+            response_format={'type': 'json_object'},
+            temperature=0.6,
         )
-        return response.text
+        return response.choices[0].message.content
 
     def assess_speaking(self, transcript, topic_question=None):
         prompt = f"""You are an IELTS speaking examiner. Evaluate the following spoken response based on the 4 official IELTS Speaking criteria.
