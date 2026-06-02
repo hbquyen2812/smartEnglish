@@ -1,11 +1,14 @@
 from django.contrib import admin
 from django.urls import path, re_path, include
 from django.conf import settings
+from django.http import JsonResponse
 from django.views.static import serve
 from rest_framework_simplejwt.views import TokenRefreshView
 from accounts.views import LoginView
 
 urlpatterns = [
+    # Health-check: trả 200 nhanh, không cần đăng nhập (dùng cho UptimeRobot giữ server thức)
+    path('healthz/', lambda request: JsonResponse({'status': 'ok'})),
     path('admin/', admin.site.urls),
     # JWT Auth
     path('api/token/', LoginView.as_view(), name='token_obtain_pair'),
